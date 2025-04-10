@@ -1,33 +1,49 @@
-from cryptography.fernet import Fernet, InvalidToken
+
 from flask import Flask, render_template, request
+from cryptography.fernet import Fernet
 
 app = Flask(__name__)
 
+# Page d'accueil
 @app.route('/')
-def hello_world():
-    return render_template('hello.html')
+def home():
+    return render_template('crypto.html')
 
-# ➕ Nouvelle route : chiffrement AVEC clé fournie
-@app.route('/encrypt/<key>/<valeur>')
-def encrypt_with_key(key, valeur):
+# Traitement du chiffrement
+@app.route('/encrypt-form', methods=['POST'])
+def encrypt_message():
+    key = request.form.get('key')
+    message = request.form.get('message')
+
     try:
-        fernet = Fernet(key.encode())
-        token = fernet.encrypt(valeur.encode())
-        return f"Valeur encryptée avec votre clé : {token.decode()}"
-    except Exception as e:
-        return f"Erreur de chiffrement : {str(e)}"
+        cipher = Fernet(key.encode())
+        encrypted_message = cipher.encrypt(message.encode()).decode()
+        result = f"Message chiffré : {encrypted_message}"
+    except Exception as error:
+        result = f"Erreur : {str(error)}"
 
-# ➕ Nouvelle route : déchiffrement AVEC clé fournie
-@app.route('/decrypt/<key>/<valeur>')
-def decrypt_with_key(key, valeur):
+    return render_template('crypto.html', result=result)
+
+# Traitement du déchiffrement
+@app.route('/decrypt-form', methods=['POST'])
+def decrypt_message():
+    key = request.form.get('key')
+    encrypted_message = request.form.get('message')
+
     try:
-        fernet = Fernet(key.encode())
-        decrypted = fernet.decrypt(valeur.encode())
-        return f"Valeur décryptée avec votre clé : {decrypted.decode()}"
-    except InvalidToken:
-        return "Clé invalide ou valeur corrompue."
-    except Exception as e:
-        return f"Erreur de déchiffrement : {str(e)}"
+        cipher = Fernet(key.encode())
+        decrypted_message = cipher.decrypt(encrypted_message.encode()).decode()
+        result = f"Message déchiffré : {decrypted_message}"
+    except Exception as error:
+        result = f"Erreur : {str(error)}"
 
-if __name__ == "__main__":
+    return render_template('crypto.html', result=result)
+
+# Génération d'une nouvelle clé
+@app.route('/generate-key/')
+def generate_key():
+    new_key = Fernet.generate_key().decode()
+    return {'key': new_key}
+
+if __name__ == '__main__':
     app.run(debug=True)
