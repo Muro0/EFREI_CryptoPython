@@ -1,30 +1,33 @@
-from cryptography.fernet import Fernet
-from flask import Flask, render_template, jsonify
+from cryptography.fernet import Fernet, InvalidToken
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return render_template('hello.html')  # Page d'accueil
+    return render_template('hello.html')
 
-# Clé de chiffrement/déchiffrement (valable uniquement pour cette session)
-key = Fernet.generate_key()
-f = Fernet(key)
-
-@app.route('/encrypt/<string:valeur>')
-def encryptage(valeur):
-    valeur_bytes = valeur.encode()  # Conversion str -> bytes
-    token = f.encrypt(valeur_bytes)  # Encrypt la valeur
-    return f"Valeur encryptée : {token.decode()}"  # Retourne le token en str
-
-@app.route('/decrypt/<string:valeur>')
-def decryptage(valeur):
+# ➕ Nouvelle route : chiffrement AVEC clé fournie
+@app.route('/encrypt/<key>/<valeur>')
+def encrypt_with_key(key, valeur):
     try:
-        valeur_bytes = valeur.encode()  # Conversion str -> bytes
-        decrypted = f.decrypt(valeur_bytes)  # Décryptage
-        return f"Valeur décryptée : {decrypted.decode()}"
+        fernet = Fernet(key.encode())
+        token = fernet.encrypt(valeur.encode())
+        return f"Valeur encryptée avec votre clé : {token.decode()}"
     except Exception as e:
-        return f"Erreur de décryptage : {str(e)}"
+        return f"Erreur de chiffrement : {str(e)}"
+
+# ➕ Nouvelle route : déchiffrement AVEC clé fournie
+@app.route('/decrypt/<key>/<valeur>')
+def decrypt_with_key(key, valeur):
+    try:
+        fernet = Fernet(key.encode())
+        decrypted = fernet.decrypt(valeur.encode())
+        return f"Valeur décryptée avec votre clé : {decrypted.decode()}"
+    except InvalidToken:
+        return "Clé invalide ou valeur corrompue."
+    except Exception as e:
+        return f"Erreur de déchiffrement : {str(e)}"
 
 if __name__ == "__main__":
     app.run(debug=True)
