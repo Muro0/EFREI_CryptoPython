@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Crypto App EFREI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 2rem;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+        form {
+            background-color: #ffffff;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.6rem;
+            margin-top: 0.3rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            background-color: #eafaf1;
+            border-left: 5px solid #2ecc71;
+            padding: 1rem;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🔐 Portail de Chiffrement EFREI</h1>
+    <p style="text-align: center;">Saisissez votre propre clé pour chiffrer ou déchiffrer un message confidentiel.</p>
+
+    <h2>🔒 Crypter un message</h2>
+    <form action="/encrypt-form" method="post">
+        <label for="key_encrypt">Votre clé personnelle :</label>
+        <input type="text" name="key" id="key_encrypt" placeholder="Collez ici votre clé Fernet" required>
+
+        <label for="message_encrypt">Message à chiffrer :</label>
+        <textarea name="message" id="message_encrypt" rows="4" placeholder="Entrez votre message ici..." required></textarea>
+
+        <button type="submit">Crypter</button>
+    </form>
+
+    <h2>🔓 Décrypter un message</h2>
+    <form action="/decrypt-form" method="post">
+        <label for="key_decrypt">Votre clé personnelle :</label>
+        <input type="text" name="key" id="key_decrypt" placeholder="Collez ici votre clé Fernet" required>
+
+        <label for="message_decrypt">Message chiffré à décrypter :</label>
+        <textarea name="message" id="message_decrypt" rows="4" placeholder="Collez ici le message chiffré" required></textarea>
+
+        <button type="submit">Décrypter</button>
+    </form>
+
+    {% if result %}
+        <div class="result">
+            <strong>Résultat :</strong><br>
+            {{ result }}
+        </div>
+    {% endif %}
+
+</body>
+</html>
